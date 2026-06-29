@@ -1,62 +1,93 @@
-import {
-  Card,
-  CardContent,
-  Typography,
-  Grid,
-  Paper,
-} from "@mui/material";
-import { produtos, pedidos, usuarios } from "../data/mockData";
+import { useState, useEffect } from "react";
+import { Box, Grid, Paper, Typography, List, ListItem, ListItemText, Divider } from "@mui/material";
 
 export default function Dashboard() {
-  const pedidosPendentes = pedidos.filter(
-    (p) => p.status === "Pendente"
-  );
+  const [totalProdutos, setTotalProdutos] = useState(0);
+  const [pedidosPendentes, setPedidosPendentes] = useState([]);
+  
+  // Como ainda não fizemos uma rota para listar os usuários do banco, 
+  // vamos deixar mockado (fixo) por enquanto.
+  const [totalUsuarios, setTotalUsuarios] = useState(2);
 
-  const cards = [
-    { titulo: "Produtos", valor: produtos.length },
-    { titulo: "Pedidos Pendentes", valor: pedidosPendentes.length },
-    { titulo: "Usuários", valor: usuarios.length },
-  ];
+  // Busca os dados reais do Backend assim que a Dashboard abre
+  useEffect(() => {
+    // 1. Busca total de Produtos
+    fetch("http://localhost:3000/products")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          setTotalProdutos(data.length); // Conta quantos produtos tem no array
+        }
+      })
+      .catch((err) => console.error("Erro ao buscar produtos:", err));
+
+    // 2. Busca Pedidos e filtra os Pendentes
+    fetch("http://localhost:3000/orders")
+      .then((res) => res.json())
+      .then((data) => {
+        if (Array.isArray(data)) {
+          // Filtra o array para pegar APENAS os que têm status "Pendente"
+          const pendentes = data.filter((pedido) => pedido.status === "Pendente");
+          setPedidosPendentes(pendentes);
+        }
+      })
+      .catch((err) => console.error("Erro ao buscar pedidos:", err));
+  }, []);
 
   return (
-    <>
-      <Typography variant="h4" sx={{ mb: 3, fontWeight: "bold" }}>
-        Dashboard
-      </Typography>
+    <Box sx={{ p: 4 }}>
+      <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold' }}>Dashboard</Typography>
 
-      <Grid container spacing={3}>
-        {cards.map((card) => (
-          <Grid item xs={12} md={4} key={card.titulo}>
-            <Card
-              sx={{
-                borderRadius: 3,
-                boxShadow: 3,
-              }}
-            >
-              <CardContent>
-                <Typography variant="subtitle1" color="text.secondary">
-                  {card.titulo}
-                </Typography>
-                <Typography variant="h3" sx={{ fontWeight: "bold" }}>
-                  {card.valor}
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
-        ))}
+      {/* CARDS DE RESUMO */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Grid item xs={12} sm={4}>
+          <Paper elevation={3} sx={{ p: 3, textAlign: 'center', borderRadius: 2 }}>
+            <Typography variant="h6" color="textSecondary">Produtos</Typography>
+            <Typography variant="h3" sx={{ fontWeight: 'bold', mt: 1 }}>
+              {totalProdutos}
+            </Typography>
+          </Paper>
+        </Grid>
+        
+        <Grid item xs={12} sm={4}>
+          <Paper elevation={3} sx={{ p: 3, textAlign: 'center', borderRadius: 2 }}>
+            <Typography variant="h6" color="textSecondary">Pedidos Pendentes</Typography>
+            <Typography variant="h3" color="warning.main" sx={{ fontWeight: 'bold', mt: 1 }}>
+              {pedidosPendentes.length}
+            </Typography>
+          </Paper>
+        </Grid>
+
+        <Grid item xs={12} sm={4}>
+          <Paper elevation={3} sx={{ p: 3, textAlign: 'center', borderRadius: 2 }}>
+            <Typography variant="h6" color="textSecondary">Usuários</Typography>
+            <Typography variant="h3" sx={{ fontWeight: 'bold', mt: 1 }}>
+              {totalUsuarios}
+            </Typography>
+          </Paper>
+        </Grid>
       </Grid>
 
-      <Paper sx={{ mt: 4, p: 3, borderRadius: 3 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          Pedidos Pendentes
-        </Typography>
-
-        {pedidosPendentes.map((pedido) => (
-          <Typography key={pedido.id}>
-            Pedido #{pedido.id} - {pedido.cliente}
-          </Typography>
-        ))}
+      {/* LISTA DE PEDIDOS PENDENTES */}
+      <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
+        <Typography variant="h6" sx={{ mb: 2 }}>Lista de Pedidos Pendentes</Typography>
+        <Divider sx={{ mb: 2 }} />
+        
+        {pedidosPendentes.length === 0 ? (
+          <Typography color="textSecondary">Nenhum pedido pendente no momento. 🎉</Typography>
+        ) : (
+          <List>
+            {pedidosPendentes.map((pedido) => (
+              <ListItem key={pedido.id} disablePadding sx={{ mb: 1 }}>
+                <ListItemText 
+                  primary={`Pedido #${pedido.id} - ${pedido.customerName}`} 
+                  secondary={`Produto: ${pedido.product?.name} | Quantidade: ${pedido.quantity}`}
+                />
+              </ListItem>
+            ))}
+          </List>
+        )}
       </Paper>
-    </>
+    </Box>
   );
 }
