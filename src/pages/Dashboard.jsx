@@ -5,28 +5,26 @@ export default function Dashboard() {
   const [totalProdutos, setTotalProdutos] = useState(0);
   const [pedidosPendentes, setPedidosPendentes] = useState([]);
   
-  // Como ainda não fizemos uma rota para listar os usuários do banco, 
-  // vamos deixar mockado (fixo) por enquanto.
   const [totalUsuarios, setTotalUsuarios] = useState(2);
 
-  // Busca os dados reais do Backend assim que a Dashboard abre
+  // busca os dados reais do Backend assim que a Dashboard abre
   useEffect(() => {
-    // 1. Busca total de Produtos
+    // busca total de Produtos
     fetch("http://localhost:3000/products")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
-          setTotalProdutos(data.length); // Conta quantos produtos tem no array
+          setTotalProdutos(data.length); // conta quantos produtos tem no array
         }
       })
       .catch((err) => console.error("Erro ao buscar produtos:", err));
 
-    // 2. Busca Pedidos e filtra os Pendentes
+    // busca Pedidos e filtra os Pendentes
     fetch("http://localhost:3000/orders")
       .then((res) => res.json())
       .then((data) => {
         if (Array.isArray(data)) {
-          // Filtra o array para pegar APENAS os que têm status "Pendente"
+          // filtra o array para pegar apenas os que têm status "Pendente"
           const pendentes = data.filter((pedido) => pedido.status === "Pendente");
           setPedidosPendentes(pendentes);
         }
@@ -38,7 +36,7 @@ export default function Dashboard() {
     <Box sx={{ p: 4 }}>
       <Typography variant="h4" sx={{ mb: 3, fontWeight: 'bold' }}>Dashboard</Typography>
 
-      {/* CARDS DE RESUMO */}
+      {/* cards de resumo */}
       <Grid container spacing={3} sx={{ mb: 4 }}>
         <Grid item xs={12} sm={4}>
           <Paper elevation={3} sx={{ p: 3, textAlign: 'center', borderRadius: 2 }}>
@@ -68,7 +66,7 @@ export default function Dashboard() {
         </Grid>
       </Grid>
 
-      {/* LISTA DE PEDIDOS PENDENTES */}
+      {/* lista de pedidos pendentes */}
       <Paper elevation={3} sx={{ p: 3, borderRadius: 2 }}>
         <Typography variant="h6" sx={{ mb: 2 }}>Lista de Pedidos Pendentes</Typography>
         <Divider sx={{ mb: 2 }} />

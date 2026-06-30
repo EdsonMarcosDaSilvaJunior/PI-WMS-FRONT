@@ -27,7 +27,7 @@ export default function Login() {
     setCode("");
   };
 
-  // 1. Ação de Login
+  // ação de Login
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -48,7 +48,7 @@ export default function Login() {
     }
   };
 
-  // 2. Ação de Cadastro
+  // ação de Cadastro
   const handleRegister = async (e) => {
     e.preventDefault();
     try {
@@ -72,7 +72,7 @@ export default function Login() {
     }
   };
 
-  // 3. Ação de Esqueci a Senha (Com a proteção contra enumeração ativa)
+  // ação de esqueci a senha 
   const handleForgot = async (e) => {
     e.preventDefault();
     try {
@@ -84,7 +84,7 @@ export default function Login() {
       const dados = await response.json();
 
       if (response.ok) {
-        // ALTERADO AQUI: Agora exibe a mensagem neutra vinda do backend
+        // exibe a mensagem vinda do backend
         setMensagem({ texto: dados.message, tipo: "success" });
         setView("reset_password"); 
       } else {
@@ -95,7 +95,7 @@ export default function Login() {
     }
   };
 
-  // 4. Ação de Redefinir a Senha (Envia e-mail, código e nova senha)
+  // ação de redefinir a senha (envia e-mail, código e nova senha)
   const handleResetPassword = async (e) => {
     e.preventDefault();
     try {
@@ -134,7 +134,7 @@ export default function Login() {
 
         {mensagem.texto && <Alert severity={mensagem.tipo} sx={{ mb: 3 }}>{mensagem.texto}</Alert>}
 
-        {/* FORMULÁRIO DE LOGIN */}
+        {/* formulário de login */}
         {view === "login" && (
           <form onSubmit={handleLogin}>
             <Stack spacing={2}>
@@ -150,7 +150,7 @@ export default function Login() {
           </form>
         )}
 
-        {/* FORMULÁRIO DE CADASTRO */}
+        {/* formulário de cadastro */}
         {view === "register" && (
           <form onSubmit={handleRegister}>
             <Stack spacing={2}>
@@ -166,7 +166,7 @@ export default function Login() {
           </form>
         )}
 
-        {/* FORMULÁRIO DE ESQUECI A SENHA */}
+        {/* formulario de esqueci a senha */}
         {view === "forgot" && (
           <form onSubmit={handleForgot}>
             <Stack spacing={2}>
@@ -180,7 +180,7 @@ export default function Login() {
           </form>
         )}
 
-        {/* FORMULÁRIO DE REDEFINIR A SENHA */}
+        {/* formulário de redefinir a senha */}
         {view === "reset_password" && (
           <form onSubmit={handleResetPassword}>
             <Stack spacing={2}>

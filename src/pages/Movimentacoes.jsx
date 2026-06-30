@@ -8,15 +8,15 @@ import {
 export default function Movimentacoes() {
   const [produtos, setProdutos] = useState([]);
   
-  // Estados do formulário
+  // estados do formulário
   const [productId, setProductId] = useState("");
   const [type, setType] = useState("entrada");
   const [quantity, setQuantity] = useState("");
   
-  // Estado para mostrar mensagens de sucesso ou   erro
+  // estado para mostrar mensagens de sucesso ou   erro
   const [mensagem, setMensagem] = useState({ texto: "", tipo: "" });
 
-  // Busca os produtos para preencher a caixa de seleção e a tabela
+  // busca os produtos para preencher a caixa de seleção e a tabela
   const carregarProdutos = () => {
     fetch("http://localhost:3000/products")
       .then((res) => res.json())
@@ -28,7 +28,7 @@ export default function Movimentacoes() {
     carregarProdutos();
   }, []);
 
-  // Envia a movimentação para o backend
+  // envia a movimentação para o backend
   const handleSalvar = () => {
     // Validação básica
     if (!productId || !quantity || quantity <= 0) {
@@ -48,7 +48,7 @@ export default function Movimentacoes() {
       body: JSON.stringify(payload)
     })
       .then(async (res) => {
-        // Se o backend jogar um erro (ex: Estoque insuficiente), capturamos aqui
+        // se o backend jogar um erro (ex: sstoque insuficiente), é capturado aqui
         if (!res.ok) {
           const erro = await res.json();
           throw new Error(erro.error || "Erro ao registrar movimentação");

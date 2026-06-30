@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import {
   Typography, Paper, Table, TableHead, TableRow, TableCell,
   TableBody, Button, IconButton, Dialog, DialogTitle,
-  DialogContent, DialogActions, TextField, Stack
+  DialogContent, DialogContentText, DialogActions, TextField, Stack
 } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
@@ -10,11 +10,13 @@ import EditIcon from "@mui/icons-material/Edit";
 export default function Produtos() {
   const [listaProdutos, setListaProdutos] = useState([]);
   const [open, setOpen] = useState(false); 
-  
 
   const [produtoAtual, setProdutoAtual] = useState({ name: "", price: "", stock: "" });
   const [editandoId, setEditandoId] = useState(null);
 
+  // controle da caixa de confirmação de exclusão
+  const [openConfirmDialog, setOpenConfirmDialog] = useState(false);
+  const [produtoParaExcluir, setProdutoParaExcluir] = useState(null);
 
   const carregarProdutos = () => {
     fetch("http://localhost:3000/products")
@@ -27,7 +29,7 @@ export default function Produtos() {
     carregarProdutos();
   }, []);
 
-  // 2. ABRIR JANELA (Para Novo ou Editar)
+  // abrir janela para NOVO ou EDITAR
   const handleOpen = (produto = null) => {
     if (produto) {
       setProdutoAtual({ name: produto.name, price: produto.price, stock: produto.stock });
@@ -43,7 +45,6 @@ export default function Produtos() {
     setOpen(false);
     setProdutoAtual({ name: "", price: "", stock: "" });
   };
-
 
   const handleSave = () => {
     const metodo = editandoId ? "PUT" : "POST";
@@ -67,13 +68,29 @@ export default function Produtos() {
     .catch((err) => console.error("Erro ao salvar:", err));
   };
 
- 
-  const handleExcluir = (id) => {
-    if (window.confirm("Deseja realmente excluir este produto?")) {
-      fetch(`http://localhost:3000/products/${id}`, { method: "DELETE" })
-        .then(() => carregarProdutos())
+  // apenas abre o aviso e guarda qual ID foi clicado
+  const handleClickExcluir = (id) => {
+    setProdutoParaExcluir(id);
+    setOpenConfirmDialog(true);
+  };
+
+  // executa a exclusão de fato
+  const confirmarExclusao = () => {
+    if (produtoParaExcluir) {
+      fetch(`http://localhost:3000/products/${produtoParaExcluir}`, { method: "DELETE" })
+        .then(() => {
+          carregarProdutos();
+          setOpenConfirmDialog(false); // Fecha o aviso
+          setProdutoParaExcluir(null); // Limpa o estado
+        })
         .catch((err) => console.error("Erro ao excluir:", err));
     }
+  };
+
+  // cancelar exclusão
+  const cancelarExclusao = () => {
+    setOpenConfirmDialog(false);
+    setProdutoParaExcluir(null);
   };
 
   return (
@@ -106,7 +123,9 @@ export default function Produtos() {
                   <IconButton color="primary" onClick={() => handleOpen(p)}>
                     <EditIcon />
                   </IconButton>
-                  <IconButton color="error" onClick={() => handleExcluir(p.id)}>
+                  
+            
+                  <IconButton color="error" onClick={() => handleClickExcluir(p.id)}>
                     <DeleteIcon />
                   </IconButton>
                 </TableCell>
@@ -116,7 +135,6 @@ export default function Produtos() {
         </Table>
       </Paper>
 
-    
       <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
         <DialogTitle>{editandoId ? "Editar Produto" : "Novo Produto"}</DialogTitle>
         <DialogContent>
@@ -146,6 +164,35 @@ export default function Produtos() {
         <DialogActions>
           <Button onClick={handleClose}>Cancelar</Button>
           <Button variant="contained" onClick={handleSave}>Salvar</Button>
+        </DialogActions>
+      </Dialog>
+
+
+      {/* confirmação de exclusão*/}
+      
+      <Dialog 
+        open={openConfirmDialog} 
+        onClose={cancelarExclusao}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle sx={{ color: '#d32f2f', fontWeight: 'bold' }}>
+          Atenção: Excluir Produto?
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Esta ação é irreversível. O produto será permanentemente removido, e <strong>todos os históricos de movimentação de estoque e pedidos pendentes associados a ele também serão apagados</strong> para manter a integridade do sistema.
+            <br /><br />
+            Deseja continuar?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={cancelarExclusao} color="primary">
+            Cancelar
+          </Button>
+          <Button onClick={confirmarExclusao} variant="contained" color="error">
+            Sim, Excluir
+          </Button>
         </DialogActions>
       </Dialog>
     </>

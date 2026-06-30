@@ -8,16 +8,16 @@ import {
 
 export default function Pedidos() {
   const [orders, setOrders] = useState([]);
-  const [produtos, setProdutos] = useState([]); // Guarda os produtos para o select
+  const [produtos, setProdutos] = useState([]); // guarda os produtos para o select
   const [mensagem, setMensagem] = useState({ texto: "", tipo: "" });
 
-  // ESTADOS DOS MODAIS
+  // estados dos modais
   const [isCriarModalOpen, setIsCriarModalOpen] = useState(false);
   const [isConfirmarModalOpen, setIsConfirmarModalOpen] = useState(false);
   const [pedidoSelecionado, setPedidoSelecionado] = useState(null);
   const [novoPedido, setNovoPedido] = useState({ customerName: "", quantity: 1, productId: "" });
 
-  // 1. BUSCAR PEDIDOS DO BANCO
+  // buscar pedidos no banco
   const fetchOrders = async () => {
     try {
       const response = await fetch("http://localhost:3000/orders");
@@ -28,10 +28,9 @@ export default function Pedidos() {
     }
   };
 
-  // 2. BUSCAR PRODUTOS DO BANCO (Para usar na criação do pedido)
+  // buscar produtos no banco para usar na criação de pedidos
   const fetchProdutos = async () => {
     try {
-      // Confirme se a sua rota de buscar produtos é essa mesma
       const response = await fetch("http://localhost:3000/products"); 
       const data = await response.json();
       if (Array.isArray(data)) setProdutos(data);
@@ -40,15 +39,13 @@ export default function Pedidos() {
     }
   };
 
-  // Carrega pedidos e produtos quando a tela abre
+  // carrega pedidos e produtos quando a tela abre
   useEffect(() => {
     fetchOrders();
     fetchProdutos();
   }, []);
 
-  // --------------------------------------------------------
-  // LÓGICA DO MODAL DE CRIAR PEDIDO
-  // --------------------------------------------------------
+  // lógica modal de criar pedido
   const handleCriarPedido = async () => {
     try {
       const response = await fetch("http://localhost:3000/orders", {
@@ -61,7 +58,7 @@ export default function Pedidos() {
         setMensagem({ texto: "Pedido criado com sucesso!", tipo: "success" });
         setIsCriarModalOpen(false);
         setNovoPedido({ customerName: "", quantity: 1, productId: "" }); // Limpa o form
-        fetchOrders(); // Atualiza a tabela
+        fetchOrders(); // atualiza a tabela
       } else {
         const data = await response.json();
         setMensagem({ texto: data.error || "Erro ao criar pedido.", tipo: "error" });
@@ -71,9 +68,9 @@ export default function Pedidos() {
     }
   };
 
-  // --------------------------------------------------------
-  // LÓGICA DO MODAL DE SEPARAÇÃO
-  // --------------------------------------------------------
+
+  // lógica modal de separação
+
   const abrirModalSeparacao = (order) => {
     setPedidoSelecionado(order);
     setIsConfirmarModalOpen(true);
@@ -90,14 +87,14 @@ export default function Pedidos() {
 
       if (response.ok) {
         setMensagem({ texto: "Pedido separado com sucesso!", tipo: "success" });
-        fetchOrders(); // Recarrega a tabela
+        fetchOrders(); // recarrega a tabela
       } else {
         setMensagem({ texto: data.error, tipo: "error" });
       }
     } catch (error) {
       setMensagem({ texto: "Erro de conexão ao separar o pedido.", tipo: "error" });
     } finally {
-      setIsConfirmarModalOpen(false); // Fecha o modal sempre no final
+      setIsConfirmarModalOpen(false); // fecha o modal sempre no final
       setPedidoSelecionado(null);
     }
   };
@@ -149,7 +146,7 @@ export default function Pedidos() {
                     variant="contained" 
                     color="primary" 
                     disabled={order.status === "Separado"} 
-                    // Mudamos aqui para abrir o modal em vez de disparar direto
+                
                     onClick={() => abrirModalSeparacao(order)}
                   >
                     {order.status === "Separado" ? "CONCLUÍDO" : "SEPARAR"}
@@ -161,9 +158,9 @@ export default function Pedidos() {
         </Table>
       </TableContainer>
 
-      {/* ============================================================== */}
-      {/* DIALOG (MODAL) - CRIAR NOVO PEDIDO                             */}
-      {/* ============================================================== */}
+   
+      {/* criar novo pedido*/}
+   
       <Dialog open={isCriarModalOpen} onClose={() => setIsCriarModalOpen(false)} fullWidth maxWidth="sm">
         <DialogTitle>Criar Novo Pedido</DialogTitle>
         <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 2 }}>
@@ -201,9 +198,9 @@ export default function Pedidos() {
         </DialogActions>
       </Dialog>
 
-      {/* ============================================================== */}
-      {/* DIALOG (MODAL) - CONFIRMAR SEPARAÇÃO                           */}
-      {/* ============================================================== */}
+
+      {/* confirmar separação */}
+
       <Dialog open={isConfirmarModalOpen} onClose={() => setIsConfirmarModalOpen(false)}>
         <DialogTitle>Confirmar Separação</DialogTitle>
         <DialogContent>
